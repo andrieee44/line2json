@@ -46,16 +46,17 @@ func lineFile() *os.File {
 
 func jsonArray(file *os.File, flags *regexFlags) {
 	var (
-		scanner  *bufio.Scanner
 		re       *regexp.Regexp
+		scanner  *bufio.Scanner
 		array    []string
 		jsonData []byte
 		err      error
 	)
 
-	scanner = bufio.NewScanner(file)
-	re = regexp.MustCompile(flags.key)
+	re, err = regexp.Compile(flags.key)
+	exitIf(err)
 
+	scanner = bufio.NewScanner(file)
 	for scanner.Scan() {
 		array = append(array, re.ReplaceAllString(scanner.Text(), flags.keyRep))
 	}
@@ -70,16 +71,20 @@ func jsonArray(file *os.File, flags *regexFlags) {
 
 func jsonObject(file *os.File, flags *regexFlags) {
 	var (
-		scanner        *bufio.Scanner
 		reKey, reValue *regexp.Regexp
+		scanner        *bufio.Scanner
 		object         map[string]string
 		jsonData       []byte
 		err            error
 	)
 
+	reKey, err = regexp.Compile(flags.key)
+	exitIf(err)
+
+	reValue, err = regexp.Compile(flags.value)
+	exitIf(err)
+
 	scanner = bufio.NewScanner(file)
-	reKey = regexp.MustCompile(flags.key)
-	reValue = regexp.MustCompile(flags.value)
 	object = make(map[string]string)
 
 	for scanner.Scan() {
