@@ -44,17 +44,20 @@ func lineFile() *os.File {
 	return file
 }
 
-func jsonArray(file *os.File, flags regexFlags) {
+func jsonArray(file *os.File, flags *regexFlags) {
 	var (
 		scanner  *bufio.Scanner
+		re       *regexp.Regexp
 		array    []string
 		jsonData []byte
 		err      error
 	)
 
 	scanner = bufio.NewScanner(file)
+	re = regexp.MustCompile(flags.key)
+
 	for scanner.Scan() {
-		array = append(array, regexp.MustCompile(flags.key).ReplaceAllString(scanner.Text(), flags.keyRep))
+		array = append(array, re.ReplaceAllString(scanner.Text(), flags.keyRep))
 	}
 
 	exitIf(scanner.Err())
@@ -65,16 +68,44 @@ func jsonArray(file *os.File, flags regexFlags) {
 	fmt.Println(string(jsonData))
 }
 
+func jsonObject(file *os.File, flags *regexFlags) {
+	var (
+		scanner        *bufio.Scanner
+		reKey, reValue *regexp.Regexp
+		object         map[string]string
+		jsonData       []byte
+		err            error
+	)
+
+	scanner = bufio.NewScanner(file)
+	reKey = regexp.MustCompile(flags.key)
+	reValue = regexp.MustCompile(flags.value)
+	object = make(map[string]string)
+
+	for scanner.Scan() {
+		object[reKey.ReplaceAllString(scanner.Text(), flags.keyRep)] = reValue.ReplaceAllString(scanner.Text(), flags.valueRep)
+	}
+
+	exitIf(scanner.Err())
+
+	jsonData, err = json.Marshal(object)
+	panicIf(err)
+
+	fmt.Println(string(jsonData))
+}
+
 func main() {
 	var (
 		objFlag bool
-		flags   regexFlags
+		flags   *regexFlags
 	)
+
+	flags = &regexFlags{}
 
 	flag.Usage = func() {
 		fmt.Fprintln(flag.CommandLine.Output(), `usage: line2json [OPTION]... [FILE]
 
-line2json converts text file to a JSON array.
+line2json converts text lines to a JSON array.
 if no FILE, read from STDIN.
 
 example: line2json test.txt`)
@@ -87,7 +118,13 @@ example: line2json test.txt`)
 	flag.StringVar(&flags.value, "V", "", "regular expression to manipulate value if outputting an object")
 	flag.StringVar(&flags.keyRep, "k", "", "string to replace when key regular expression matches")
 	flag.StringVar(&flags.valueRep, "v", "", "string to replace when value regular expression matches")
-
 	flag.Parse()
+
+	if objFlag {
+		jsonObject(lineFile(), flags)
+
+		return
+	}
+
 	jsonArray(lineFile(), flags)
 }
