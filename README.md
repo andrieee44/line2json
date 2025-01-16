@@ -52,8 +52,8 @@ The replacement string when value regular expression matches.
 
 Script for listing all man pages:
 
-**\$ eval "\$(man -k . \| line2json --object --valueRegex '^(.+)
-\\(.+)\\\[\[:space:\]\]\*-.\*\$' -valueReplace 'man \$2 \$1' \| cmenu
+**\$ eval "\$(man −k . \| line2json −−object −−valueRegex '^(.+)
+\\(.+)\\\[\[:space:\]\]\*−.\*\$' −valueReplace 'man \$2 \$1' \| cmenu
 fzf)"**
 
 ## SEE ALSO <span id="SEE ALSO"></span>

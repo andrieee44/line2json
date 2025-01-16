@@ -36,7 +36,7 @@ The replacement string when value regular expression matches.
 .TP
 Script for listing all man pages:
 .EX
-.B $ eval \(dq$(man -k . | line2json --object --valueRegex \(aq\(ha(.+) \(rs((.+)\(rs)[[:space:]]*-.*$\(aq -valueReplace \(aqman $2 $1\(aq | cmenu fzf)\(dq
+.B $ eval \(dq$(man \-k . | line2json \-\-object \-\-valueRegex \(aq\(ha(.+) \(rs((.+)\(rs)[[:space:]]*\-.*$\(aq \-valueReplace \(aqman $2 $1\(aq | cmenu fzf)\(dq
 .EE
 .SH SEE ALSO
 .IR cmenu "(1), " man "(1), " fzf (1)
