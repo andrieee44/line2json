@@ -35,7 +35,9 @@ The replacement string when value regular expression matches.
 .SH EXAMPLE
 .TP
 Script for listing all man pages:
-.B $ eval \(dq$(man -k . | line2json --object --valueRegex '^(.+) \((.+)\)[[:space:]]*-.*$' -valueReplace 'man $2 $1' | cmenu fzf)\(dq
+.EX
+.B $ eval \(dq$(man -k . | line2json --object --valueRegex \(aq\(ha(.+) \(rs((.+)\(rs)[[:space:]]*-.*$\(aq -valueReplace \(aqman $2 $1\(aq | cmenu fzf)\(dq
+.EE
 .SH SEE ALSO
 .IR cmenu "(1), " man "(1), " fzf (1)
 .SH AUTHOR
