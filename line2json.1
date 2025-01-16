@@ -1,0 +1,42 @@
+.TH line2json 1
+.SH NAME
+line2json \- convert text lines to JSON
+.SH SYNOPSIS
+.B line2json
+.RB [ \-\-keyRegex
+.IR regex ]
+.RB [ \-\-keyReplace
+.IR replacement ]
+.RB [ \-\-object ]
+.RB [ \-\-valueRegex
+.IR regex ]
+.RB [ \-\-valueReplace
+.IR replacement ]
+.SH DESCRIPTION
+.B line2json
+is a text lines to JSON converter, originally designed to work with
+.IR cmenu "(1) and " man (1).
+.SH OPTIONS
+.TP
+.BI \-\-keyRegex " regex"
+The regular expression to manipulate item if outputting an array or manipulate key if outputting an object.
+.TP
+.BI \-\-keyReplace " replacement"
+The replacement string when key regular expression matches.
+.TP
+.B \-\-object
+Whether to convert each line to a key\-value object.
+.TP
+.BI \-\-valueRegex " regex"
+The regular expression to manipulate value if outputting an object.
+.TP
+.BI \-\-valueReplace " replacement"
+The replacement string when value regular expression matches.
+.SH EXAMPLE
+.TP
+Script for listing all man pages:
+.B $ eval \(dq$(man -k . | line2json --object --valueRegex '^(.+) \((.+)\)[[:space:]]*-.*$' -valueReplace 'man $2 $1' | cmenu fzf)\(dq
+.SH SEE ALSO
+.IR cmenu "(1), " man "(1), " fzf (1)
+.SH AUTHOR
+andrieee44 (andrieee44@gmail.com)

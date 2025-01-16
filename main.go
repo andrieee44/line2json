@@ -10,7 +10,7 @@ import (
 )
 
 type regexFlags struct {
-	key, value, keyRep, valueRep string
+	keyRegex, keyReplace, valueRegex, valueReplace string
 }
 
 func panicIf(err error) {
@@ -53,12 +53,12 @@ func jsonArray(file *os.File, flags *regexFlags) {
 		err      error
 	)
 
-	re, err = regexp.Compile(flags.key)
+	re, err = regexp.Compile(flags.keyRegex)
 	exitIf(err)
 
 	scanner = bufio.NewScanner(file)
 	for scanner.Scan() {
-		array = append(array, re.ReplaceAllString(scanner.Text(), flags.keyRep))
+		array = append(array, re.ReplaceAllString(scanner.Text(), flags.keyReplace))
 	}
 
 	exitIf(scanner.Err())
@@ -78,17 +78,17 @@ func jsonObject(file *os.File, flags *regexFlags) {
 		err            error
 	)
 
-	reKey, err = regexp.Compile(flags.key)
+	reKey, err = regexp.Compile(flags.keyRegex)
 	exitIf(err)
 
-	reValue, err = regexp.Compile(flags.value)
+	reValue, err = regexp.Compile(flags.valueRegex)
 	exitIf(err)
 
 	scanner = bufio.NewScanner(file)
 	object = make(map[string]string)
 
 	for scanner.Scan() {
-		object[reKey.ReplaceAllString(scanner.Text(), flags.keyRep)] = reValue.ReplaceAllString(scanner.Text(), flags.valueRep)
+		object[reKey.ReplaceAllString(scanner.Text(), flags.keyReplace)] = reValue.ReplaceAllString(scanner.Text(), flags.valueReplace)
 	}
 
 	exitIf(scanner.Err())
@@ -108,21 +108,15 @@ func main() {
 	flags = &regexFlags{}
 
 	flag.Usage = func() {
-		fmt.Fprintln(flag.CommandLine.Output(), `usage: line2json [OPTION]... [FILE]
-
-line2json converts text lines to a JSON array.
-if no FILE, read from STDIN.
-
-example: line2json test.txt`)
-
+		fmt.Fprintln(flag.CommandLine.Output(), "usage: line2json [--keyRegex <regex>] [--keyReplace <replacement>] [--object] [--valueRegex <regex>] [--valueReplace <replacement>] [FILE]")
 		flag.PrintDefaults()
 	}
 
-	flag.BoolVar(&objFlag, "o", false, "convert each line to a key value object")
-	flag.StringVar(&flags.key, "K", "", "regular expression to manipulate item if outputting an array, key if outputting an object")
-	flag.StringVar(&flags.value, "V", "", "regular expression to manipulate value if outputting an object")
-	flag.StringVar(&flags.keyRep, "k", "", "string to replace when key regular expression matches")
-	flag.StringVar(&flags.valueRep, "v", "", "string to replace when value regular expression matches")
+	flag.StringVar(&flags.keyRegex, "keyRegex", "", "The regular expression to manipulate item if outputting an array or manipulate key if outputting an object.")
+	flag.StringVar(&flags.keyReplace, "keyReplace", "", "The replacement string when key regular expression matches.")
+	flag.BoolVar(&objFlag, "object", false, "Whether to convert each line to a key-value object.")
+	flag.StringVar(&flags.valueRegex, "valueRegex", "", "The regular expression to manipulate value if outputting an object.")
+	flag.StringVar(&flags.valueReplace, "valueReplace", "", "The replacement string when value regular expression matches.")
 	flag.Parse()
 
 	if objFlag {
